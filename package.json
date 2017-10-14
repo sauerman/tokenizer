@@ -1,0 +1,24 @@
+{
+  "name": "tokenizer",
+  "version": "0.6.0",
+  "description": "",
+  "main": "bundle/main.node-bundle.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node tests/",
+    "build-browser": "webpack --config browser-webpack.config.js",
+    "build-node": "webpack --config node-webpack.config.js",
+    "watch": "webpack --config browser-webpack.config.js --watch"
+  },
+  "author": "Maximilian Sauermann",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babel-loader": "^5.3.2",
+    "pretty-hrtime": "^1.0.1",
+    "webpack": "^1.12.2"
+  },
+  "dependencies": {}
+}

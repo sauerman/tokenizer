@@ -1,0 +1,124 @@
+<style>
+  .input textarea {
+    width: 100%;
+    height: 200px;
+  }
+
+  .token {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .token>div:nth-of-type(2) {
+    font-size: 18px;
+  }
+
+  .token>div {
+    font-size: 11px;
+  }
+
+  .token .type-keyword {
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  .row {
+    height: 20px;
+  }
+
+  .empty {
+    color: white;
+  }
+</style>
+
+<div class="input">
+  <textarea id="input"></textarea>
+</div>
+<div class="output"></div>
+<script src="../bundle/main.browser-bundle.js"></script>
+<script>
+  (function program() {
+    var tester = tokenizer.createTokenizer({
+      grammar: tokenizer.grammars.javascript,
+      bufferSize: 100000,
+    });
+
+    var $output = document.querySelector('.output');
+    function renderRow() {
+      var el = document.createElement('div');
+      el.className = 'row';
+      $output.appendChild(el);
+    }
+
+    function renderToken(
+      index,
+      id,
+      row,
+      col,
+      value,
+      type,
+      level,
+      semantic,
+      context,
+      chunk,
+      contextLeft,
+      contextRight,
+      parentContext
+    ) {
+      var el = document.createElement('div');
+      el.className = 'token';
+      el.innerHTML =
+        '<div>' + index + ', ' + id + '</div>' +
+        '<div class="type-' + type + '">' + value + '</div>' +
+        '<div>' + row + ', ' + col + '</div>' +
+        '<div>' + level + ', ' + contextLeft + ', ' + contextRight + ', ' + parentContext + '</div>' +
+        '<div>' + semantic + '</div>' +
+        '<div>' + context + '</div>' +
+        '<div>' + chunk + '</div>'
+        ;
+
+      $output.appendChild(el);
+    }
+
+    function tokenize(input) {
+      var cache = tester.tokenize(input);
+      cache = tester.semantica();
+
+      var lastRow = 0;
+      for (var i = 1; i <= cache.tokenCount; i += 1) {
+        if (lastRow < cache.tokens.getRow(i)) {
+          lastRow += 1;
+          renderRow();
+        }
+
+        var id = cache.tokens.getId(i);
+        var value = cache.tokens.getValue(i);
+
+        var row = cache.tokens.getRow(i);
+        var col = cache.tokens.getCol(i);
+        var type = tester.mappings.type[cache.tokens.getType(i)];
+        var level = cache.tokens.getContextLevel(i);
+        var semantic = tester.mappings.semantic[cache.tokens.getSemantic(i)] ||
+          '<span class="empty">-</span>';
+
+        var context = tester.mappings.context[cache.tokens.getContext(i)] ||
+          '<span class="empty">-</span>';
+
+        var chunk = tester.mappings.chunk[cache.tokens.getChunk(i)] ||
+          '<span class="empty">-</span>';
+
+        var contextLeft = cache.tokens.getContextLeft(i);
+        var contextRight = cache.tokens.getContextRight(i);
+        var parentContext = cache.tokens.getParentContext(i);
+
+        renderToken(i, id, row, col, value, type, level, semantic, context, chunk, contextLeft, contextRight, parentContext);
+      }
+    }
+
+    $input = document.getElementById('input');
+    $input.addEventListener('input', function () {
+      $output.innerHTML = '';
+      tokenize($input.value);
+    }, false);
+  }());
+
+</script>
